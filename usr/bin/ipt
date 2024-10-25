@@ -1,0 +1,38 @@
+#!/bin/bash
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd $DIR
+Install_PACKAGE_TOOL="../scripts/InstallPackageTool"
+
+case "$1" in
+    install)
+        chmod +x $SCRIPT_PACKAGE_TOOL/InstallMgr &> /dev/null
+        $Install_PACKAGE_TOOL/InstallMgr $2
+        ;;
+    remove)
+        chmod +x $SCRIPT_PACKAGE_TOOL/RemoveMgr &> /dev/null
+        $Install_PACKAGE_TOOL/RemoveMgr $2
+        ;;
+    update)
+        chmod +x $SCRIPT_PACKAGE_TOOL/UpdateMgr &> /dev/null
+        $Install_PACKAGE_TOOL/UpdateMgr $2
+        ;;
+    search)
+        chmod +x $SCRIPT_PACKAGE_TOOL/SearchMgr &> /dev/null
+        $Install_PACKAGE_TOOL/SearchMgr
+        ;;
+    *)
+        echo
+        echo "Install Package Tool V0.1 By MrR736 : 2024-10-24"
+        echo
+        echo "Usage: ipt <Commands>"
+        echo
+        echo "<Commands>"
+        echo "  Install : Install Packages"
+        echo "  Remove : Remove Packages"
+        echo "  Search : Search Packages"
+        echo "  Update : Update Packages"
+        echo "   -f : Update Full"
+        echo "   -l : Update Librarys"
+        ;;
+esac

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if ! command -v find &> /dev/null; then
+  echo -e "\e[31mE: find Is Not Installed.\e[0m"
+  exit 1
+fi
+
+if ! command -v for &> /dev/null; then
+  echo -e "\e[31mE: for Is Not Installed.\e[0m"
+  exit 1
+fi
+
+echo -e "\e[32mPackages List\e[0m"
+echo -e "\e[1;36m-------------\e[0m"
+for folder in $(find $SCRIPTS_DIR/lib -mindepth 1 -maxdepth 1 -type d -exec basename {} \;); do
+    echo -e "\e[1;34m$folder\e[0m"
+    echo
+done
+
+echo -e "\e[1;36m-------------\e[0m"
+

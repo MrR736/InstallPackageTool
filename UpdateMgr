@@ -1,0 +1,43 @@
+#!/bin/bash
+
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd $SCRIPTS_DIR
+ZZ_BIN="./bin/7zz"
+
+for cmd in case chmod curl wget "$ZZ_BIN"; do
+   if ! command -v "$cmd" &> /dev/null; then
+      echo -e "\e[31mE: $cmd Is Not Installed.\e[0m"
+      exit 1
+   fi
+done
+
+if [ "$(whoami)" != "root" ]; then
+    echo -e "\e[31mE: You have to run as Superuser\e[0m"
+    exit 1
+fi
+
+case "$1" in
+    -f)
+        for folder in $(find $SCRIPTS_DIR/lib -mindepth 1 -maxdepth 1 -type d -exec basename {} \;); do
+            chmod +x "$SCRIPTS_DIR/lib/$1/Update.sh" &> /dev/null
+            $SCRIPTS_DIR/lib/$folder/Update.sh
+        done
+        ;;
+    -l)
+        wget -q -O"/tmp/lib.7z" https://github.com/MrR736/InstallPackaceTool/raw/refs/heads/main/Package/InstallPackaceTool-lib.7z
+        $ZZ_BIN x "/tmp/lib.7z" -O"/" -y &> /dev/null
+        rm -rf "/tmp/lib.7z"
+        ;;
+    *)
+        if [[ -e "$SCRIPTS_DIR/lib/$1/Update.sh" ]]; then
+            chmod +x "$SCRIPTS_DIR/lib/$1/Update.sh" &> /dev/null
+        fi
+
+        if command -v $SCRIPTS_DIR/lib/$1/Update.sh &> /dev/null; then
+            $SCRIPTS_DIR/lib/$1/Update.sh
+        else
+            echo -e "\e[31mE: Unable To Locate Package $1\e[0m"
+            exit 1
+        fi
+        ;;
+esac
