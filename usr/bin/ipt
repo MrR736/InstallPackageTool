@@ -1,34 +1,58 @@
 #!/bin/bash
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd $DIR
+cd "$(dirname "${BASH_SOURCE[0]}")"
 Install_PACKAGE_TOOL="../scripts/InstallPackageTool"
 
 case "$1" in
     install)
-        chmod +x $SCRIPT_PACKAGE_TOOL/InstallMgr &> /dev/null
-        $Install_PACKAGE_TOOL/InstallMgr $2
+        if command -v "$Install_PACKAGE_TOOL/InstallMgr" &> /dev/null; then
+            chmod +x "$SCRIPT_PACKAGE_TOOL/InstallMgr" &> /dev/null
+            $Install_PACKAGE_TOOL/InstallMgr $2 $3
+        else
+            echo -e "\e[31mE: InstallMgr Is Missing.\e[0m"
+        fi
+        ;;
+    reinstall)
+        if command -v "$Install_PACKAGE_TOOL/ReinstallMgr" &> /dev/null; then
+            chmod +x "$SCRIPT_PACKAGE_TOOL/ReinstallMgr" &> /dev/null
+            $Install_PACKAGE_TOOL/ReinstallMgr $2
+        else
+            echo -e "\e[31mE: ReinstallMgr Is Missing.\e[0m"
+        fi
         ;;
     remove)
-        chmod +x $SCRIPT_PACKAGE_TOOL/RemoveMgr &> /dev/null
-        $Install_PACKAGE_TOOL/RemoveMgr $2
+        if command -v "$Install_PACKAGE_TOOL/RemoveMgr" &> /dev/null; then
+            chmod +x "$SCRIPT_PACKAGE_TOOL/RemoveMgr" &> /dev/null
+            $Install_PACKAGE_TOOL/RemoveMgr $2
+        else
+            echo -e "\e[31mE: RemoveMgr Is Missing.\e[0m"
+        fi
         ;;
     update)
-        chmod +x $SCRIPT_PACKAGE_TOOL/UpdateMgr &> /dev/null
-        $Install_PACKAGE_TOOL/UpdateMgr $2
+        if command -v "$Install_PACKAGE_TOOL/UpdateMgr" &> /dev/null; then
+            chmod +x "$SCRIPT_PACKAGE_TOOL/UpdateMgr" &> /dev/null
+            $Install_PACKAGE_TOOL/UpdateMgr $2
+        else
+            echo -e "\e[31mE: UpdateMgr Is Missing.\e[0m"
+        fi
         ;;
     search)
-        chmod +x $SCRIPT_PACKAGE_TOOL/SearchMgr &> /dev/null
-        $Install_PACKAGE_TOOL/SearchMgr
+        if command -v "$Install_PACKAGE_TOOL/SearchMgr" &> /dev/null; then
+            chmod +x "$SCRIPT_PACKAGE_TOOL/SearchMgr" &> /dev/null
+            $Install_PACKAGE_TOOL/SearchMgr
+        else
+            echo -e "\e[31mE: SearchMgr Is Missing.\e[0m"
+        fi
         ;;
     *)
         echo
-        echo "Install Package Tool V0.1 By MrR736 : 2024-10-24"
+        echo "Install Package Tool V0.2 By MrR736 : 2024-11-10"
         echo
         echo "Usage: ipt <Commands>"
         echo
         echo "<Commands>"
         echo "  Install : Install Packages"
+        echo "  Reinstall : Reinstall Packages"
         echo "  Remove : Remove Packages"
         echo "  Search : Search Packages"
         echo "  Update : Update Packages"
