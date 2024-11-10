@@ -4,43 +4,40 @@ gb_studio_BIN="/usr/bin/gb-studio"
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ "$(whoami)" != "root" ]; then
-    echo -e "\e[31mE: You have to run as Superuser\e[0m"
+    echo -e "\e[31mE: You have to run as Superuser\e[0m" >&2
     exit 1
 fi
 
-if [[ ! -e "$gb_studio_BIN" ]]; then
-    echo "GB Studio is Already Installed, so Cancelling Installation."
+if ! command -v gb-studio &> /dev/null; then
+    echo "GB Studio is Not Installed, So Cancelling Removal." >&2
     exit 1
 else
     echo "Remove GB Studio..."
-    if [ -f /etc/debian_version ]; then
-        if command -v apt-get &> /dev/null; then
-            apt-get autoremove gb-studio
-        else
-            echo -e "\e[31mE: apt Is Not Installed.\e[0m"
-            exit 1
-        fi
-    elif [ -f /etc/lsb-release ]; then
-        if command -v apt-get &> /dev/null; then
-            apt-get autoremove gb-studio
-        else
-            echo -e "\e[31mE: apt Is Not Installed.\e[0m"
-            exit 1
-        fi
-    elif [ -f /etc/redhat-release ]; then
-        if command -v dnf &> /dev/null; then
-            dnf remove gb-studio
-        else
-            echo -e "\e[31mE: dnf Is Not Installed.\e[0m"
-            exit 1
-        fi
+
+    if command -v "/usr/ProgramFiles/gb-studio/bin/gb-studio" &> /dev/null; then
+        rm -rf "~/.config/GB Studio" "/usr/share/pixmaps/gb-studio.png" "/usr/share/applications/gb-studio.desktop" "/usr/share/doc/gb-studio" "/usr/share/lintian/overrides/gb-studio" "/usr/bin/gb-studio" "/usr/ProgramFiles/gb-studio"
+    else
         if command -v yum &> /dev/null; then
-            yum remove gb-studio
+            if ! yum remove -y gb-studio; then
+                echo -e "\e[31mE: Failed to remove gb-studio using yum.\e[0m" >&2
+                exit 1
+            fi
+        elif command -v apt &> /dev/null; then
+            if ! apt autoremove -y gb-studio; then
+                echo -e "\e[31mE: Failed to remove gb-studio using apt.\e[0m" >&2
+                exit 1
+            fi
+        elif command -v dnf &> /dev/null; then
+            if ! dnf remove -y gb-studio; then
+                echo -e "\e[31mE: Failed to remove gb-studio using dnf.\e[0m" >&2
+                exit 1
+            fi
         else
-            echo -e "\e[31mE: yum Is Not Installed.\e[0m"
+            echo -e "\e[31mE: No supported package manager found.\e[0m" >&2
             exit 1
         fi
+        rm -rf "~/.config/GB Studio" "/usr/share/pixmaps/gb-studio.png" "/usr/share/applications/gb-studio.desktop" "/usr/share/doc/gb-studio" "/usr/share/lintian/overrides/gb-studio" "/usr/bin/gb-studio" "/usr/ProgramFiles/gb-studio"
     fi
-    rm -rf "~/.config/GB Studio"
-    exit 1
 fi
+
+echo "GB Studio has been Removed Successfully." >&2

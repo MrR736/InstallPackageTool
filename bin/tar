@@ -1,0 +1,25 @@
+#!/bin/bash
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ "$(uname -m)" == "x86_64" ]; then
+    export LD_LIBRARY_PATH=$DIR/Tar_Data/lib/x86_64
+    $DIR/Tar_Data/bin/x86_64/tar $@
+    unset LD_LIBRARY_PATH
+elif [ "$(uname -m)" =~ "i[3-6]86" ]; then
+    export LD_LIBRARY_PATH=$DIR/Tar_Data/lib/x86
+    $DIR/Tar_Data/bin/x86/tar $@
+    unset LD_LIBRARY_PATH
+elif [[ "$(uname -m)" == "armv7l" || "$(uname -m)" == "armv6l" || "$(uname -m)" == "armv5tel" ]]; then
+    export LD_LIBRARY_PATH=$DIR/Tar_Data/lib/arm32
+    $DIR/Tar_Data/bin/arm32/tar $@
+    unset LD_LIBRARY_PATH
+elif [ "$(uname -m)" == "aarch64" ]; then
+    export LD_LIBRARY_PATH=$DIR/Tar_Data/lib/arm64
+    $DIR/Tar_Data/bin/arm64/tar $@
+    unset LD_LIBRARY_PATH
+else
+    echo -e "\e[31mE: Unknown Architecture: $(uname -m) from Tar\e[0m" >&2
+    exit 1
+fi
+

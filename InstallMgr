@@ -1,22 +1,22 @@
 #!/bin/bash
 
-SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
 if ! command -v chmod &> /dev/null; then
-  echo -e "\e[31mE: chmod Is Not Installed.\e[0m"
+  echo -e "\e[31mE: chmod Is Not Installed.\e[0m" >&2
   exit 1
 fi
 
 if [ "$(whoami)" != "root" ]; then
-    echo -e "\e[31mE: You have to run as Superuser\e[0m"
+    echo -e "\e[31mE: You have to run as Superuser\e[0m" >&2
     exit 1
 fi
 
-if ! command -v $SCRIPTS_DIR/lib/$1/Install.sh &> /dev/null; then
-    echo -e "\e[31mE: Unable To Locate Package $1\e[0m"
+if ! command -v ./lib/$1/Install.sh &> /dev/null; then
+    echo -e "\e[31mE: Unable To Locate Package $1\e[0m" >&2
     exit 1
 else
-    chmod +x $SCRIPTS_DIR/lib/$1/Install.sh &> /dev/null
-    $SCRIPTS_DIR/lib/$1/Install.sh
+    chmod +x ./lib/$1/Install.sh &> /dev/null
+    ./lib/$1/Install.sh $2
     exit 1
 fi

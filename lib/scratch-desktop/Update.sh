@@ -10,24 +10,17 @@ if ! command -v scratch-desktop &> /dev/null; then
     exit 1
 fi
 
-for cmd in curl sed mkdir awk wget grep tee cat ln rm; do
+for cmd in curl sed grep; do
   if ! command -v "$cmd" &> /dev/null; then
-    echo -e "\e[31mE: $cmd Is Not Installed.\e[0m"
+    echo -e "\e[31mE: $cmd Is Not Installed.\e[0m" >&2
     exit 1
   fi
 done
 
 if [ "$(whoami)" != "root" ]; then
-    echo -e "\e[31mE: You have to run as Superuser\e[0m"
+    echo -e "\e[31mE: You have to run as Superuser\e[0m" >&2
     exit 1
 fi
-
-download_deb() {
-wget -q -O"/tmp/scratch-desktop.deb" "$URL"
-}
-download_rpm() {
-wget -q -O"/tmp/scratch-desktop.rpm" "$URL"
-}
 
 if command -v dpkg &> /dev/null; then
     scratch_desktop_VERSION=$(dpkg -l | grep scratch-desktop | awk '{print $3}')
@@ -35,7 +28,7 @@ if command -v dpkg &> /dev/null; then
 elif command -v rpm &> /dev/null; then
     scratch_desktop_VERSION=$(rpm -q --queryformat '%{VERSION}' scratch-desktop)
 else
-    echo -e "\e[31mE: No Supported Package Manager Found.\e[0m"
+    echo -e "\e[31mE: No Supported Package Manager Found.\e[0m" >&2
     exit 1
 fi
 
@@ -48,57 +41,26 @@ else
     exit 1
 fi
 
-if [ -f /etc/debian_version ]; then
-    if [ "$(uname -m)" == "x86_64" ]; then
-        URL=$(curl -s https://api.github.com/repos/redshaderobotics/scratch3.0-linux/releases/latest | grep '"browser_download_url":' | grep '.*amd64\.deb' | cut -d '"' -f 4)
+if command -v apt &> /dev/null; then
+    if ! sudo apt upgrade -y scratch-desktop &> /dev/null; then
+        echo -e "\e[31mE: Failed To Upgrade Scratch Desktop using apt.\e[0m" >&2
     fi
-    if [ "$(uname -m)" == "i686" ]; then
-        URL=$(curl -s https://api.github.com/repos/redshaderobotics/scratch3.0-linux/releases/latest | grep '"browser_download_url":' | grep '.*i386\.deb' | cut -d '"' -f 4)
+elif command -v dnf &> /dev/null; then
+    if ! sudo dnf upgrade -y scratch-desktop &> /dev/null; then
+        echo -e "\e[31mE: Failed To Upgrade Scratch Desktop using dnf.\e[0m" >&2
     fi
-    download_deb
-elif [ -f /etc/lsb-release ]; then
-    if [ "$(uname -m)" == "x86_64" ]; then
-        URL=$(curl -s https://api.github.com/repos/redshaderobotics/scratch3.0-linux/releases/latest | grep '"browser_download_url":' | grep '.*amd64\.deb' | cut -d '"' -f 4)
+elif command -v yum &> /dev/null; then
+    if ! sudo yum upgrade -y scratch-desktop &> /dev/null; then
+        echo -e "\e[31mE: Failed To Upgrade Scratch Desktop using yum.\e[0m" >&2
     fi
-    if [ "$(uname -m)" == "i686" ]; then
-        URL=$(curl -s https://api.github.com/repos/redshaderobotics/scratch3.0-linux/releases/latest | grep '"browser_download_url":' | grep '.*i386\.deb' | cut -d '"' -f 4)
+elif command -v snap &> /dev/null; then
+    if ! sudo snap refresh scratch-desktop &> /dev/null; then
+        echo -e "\e[31mE: Failed To Upgrade Scratch Desktop using snap.\e[0m" >&2
     fi
-    download_deb
-elif [ -f /etc/redhat-release ]; then
-    URL=$(curl -s https://api.github.com/repos/redshaderobotics/scratch3.0-linux/releases/latest | grep '"browser_download_url":' | grep '.*x86_64\.rpm' | cut -d '"' -f 4)
-    download_rpm
-else
-    echo "Unsupported distribution"
-    exit 1
-fi
-
-if [[ -e "/tmp/scratch-desktop.deb" ]]; then
-    if ! command -v apt-get &> /dev/null; then
-        echo -e "\e[31mE: apt-get Is Not Installed.\e[0m"
-        rm -rf "/tmp/scratch-desktop.deb"
-        exit 1
+elif command -v nix-shell &> /dev/null; then
+    if ! nix-shell -u scratch-desktop &> /dev/null; then
+        echo -e "\e[31mE: Failed To Upgrade Scratch Desktop using nix-shell.\e[0m" >&2
     fi
-
-    if ! command -v dpkg &> /dev/null; then
-        echo -e "\e[31mE: dpkg Is Not Installed.\e[0m"
-        rm -rf "/tmp/scratch-desktop.deb"
-        exit 1
-    fi
-
-    dpkg -i /tmp/scratch-desktop.deb
-    apt-get install -f
-    rm -rf "/tmp/scratch-desktop.deb"
-elif [[ -e "/tmp/scratch-desktop.rpm" ]]; then
-    if ! command -v rpm &> /dev/null; then
-        echo -e "\e[31mE: rpm Is Not Installed.\e[0m"
-        rm -rf "/tmp/scratch-desktop.rpm"
-        exit 1
-    fi
-
-    rpm -i /tmp/scratch-desktop.rpm
-    rm -rf "/tmp/scratch-desktop.rpm"
 else
     echo -e "\e[31mE: No Supported Package Manager Found.\e[0m"
-    rm -rf "/tmp/scratch-desktop.deb" "/tmp/scratch-desktop.rpm"
-    exit 1
 fi
